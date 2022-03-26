@@ -1,0 +1,81 @@
+version: '3'
+
+networks:
+  composetest:
+    external: false
+
+volumes:
+  alp2vol:
+    driver: local
+  alp3vol:
+    driver: local
+
+services:
+  alpine1:
+    image: alpine:latest
+    container_name: alpine1
+    command: 
+      - sh
+      - -c 
+      - |-
+        date '+_%a_%b_%d_%H-%M-%S_%Z_%Y' > /tmp/now
+        FN=$$(cat /tmp/now | tr -d -c -- '-_[:alnum:]')
+        mv /tmp/now /tmp/$$ALP_ENV$$FN
+        ls /tmp
+        sleep 61
+    volumes:
+      - /private/tmp:/tmp
+    environment:
+      - LOGLEVEL=DEBUG
+      - ALP_ENV=alp1
+    networks:
+      - composetest
+    ports:
+      - "8080:80"
+    #restart: always
+
+  alpine2:
+    image: alpine:latest
+    container_name: alpine2
+    command: 
+      - sh
+      - -c 
+      - |-
+        date '+_%a_%b_%d_%H-%M-%S_%Z_%Y' > /tmp/now
+        FN=$$(cat /tmp/now | tr -d -c -- '-_[:alnum:]')
+        mv /tmp/now /tmp/$$ALP_ENV$$FN
+        ls /tmp
+        sleep 62
+    volumes:
+      - /private/tmp:/tmp
+    environment:
+      - ALP_ENV=alp2
+    networks:
+      - composetest
+    ports:
+      - "8081:80"
+    depends_on:
+      - alpine1
+
+  alpine3:
+    image: alpine:latest
+    container_name: alpine3
+    command: 
+      - sh
+      - -c 
+      - |-
+        date '+_%a_%b_%d_%H-%M-%S_%Z_%Y' > /tmp/now
+        FN=$$(cat /tmp/now | tr -d -c -- '-_[:alnum:]')
+        mv /tmp/now /tmp/$$ALP_ENV$$FN
+        ls /tmp
+        sleep 63
+    volumes:
+      - /private/tmp:/tmp
+    environment:
+      - ALP_ENV=alp3
+    networks:
+      - composetest
+    ports:
+      - "8082:80"
+    depends_on:
+      - alpine2
